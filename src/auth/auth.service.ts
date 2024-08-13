@@ -1,8 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserDto } from './dto/create-auth';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthServices } from 'src/auth-service/bcrypting';
+import { JwtPayload } from 'jsonwebtoken';
+interface JwtUserPayload extends JwtPayload {
+  id: string;
+  email: string;
+  phoneNumber: string,
+  name: string
+}
 
 @Injectable()
 export class AuthService {
@@ -56,11 +63,9 @@ export class AuthService {
       }
       const { password: _, ...userDataWithoutPassword } = foundUser
       
-      const token = AuthServices.jwtSignUser(userDataWithoutPassword)
-      console.log(userDataWithoutPassword);
-      
+      const token = AuthServices.jwtSignUser(userDataWithoutPassword)      
 
-      res.status(200).json({
+     return  res.status(200).json({
         message: "Login Successful",
         data: token
 
@@ -75,34 +80,25 @@ export class AuthService {
     }
   }
 
-  async currentUser(req:Request, res:Response) {
-    const token = req.headers.authorization.split(" ").pop()
-    if(!token) {
-      return res.status(401).json({message:"No Token Found", data:null})
-    }
-    
+  async currentUser(token: string, req: Request, res: Response) {
     try {
-      const sessionUser = AuthServices.jwtVerifyUser(token || "")
-      console.log(sessionUser, "session");
-      
-      // if(!sessionUser || !sessionUser.email) {
-      //   return res.status(401).json({
-      //     message:"No user Found",
-      //     data: null
-      //   })
-      // }
+      const payload = AuthServices.jwtVerifyUser(token) as JwtUserPayload
+      console.log("Decoded payload:", payload);
 
-      // const {password, ...presentUser} = await this.prisma.user.findUnique(sessionUser.email)
-      // return res.status(200).json({message: "User Found", data:presentUser})
-
-    } catch (error) {
-      console.error('Error in currentUser:', error);
-      return res.status(500).json({
-        message: "Internal server error",
-        data: null
+      const user = await this.prisma.user.findUnique({
+        where: { email: payload.email},
+        select: { id: true, email: true, name: true }
       });
-    }
 
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return res.status(200).json({message:"Current User", data: user});
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
 }
