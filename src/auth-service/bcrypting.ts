@@ -1,10 +1,12 @@
 import * as bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { JWT_EXPIRATION_TIME, JWT_SECRET, SALT_ROUNS } from "../utils/constant"
+import { JWT_EXPIRATION_TIME, JWT_SECRET, SALT_ROUNDS } from "../utils/constant"
 
 export const AuthServices = {
   async hashPassword(password) {
-    return await bcrypt.hash(password, SALT_ROUNS)
+    console.log('SALT_ROUNDS:', SALT_ROUNDS);
+
+    return await bcrypt.hash(password, Number(SALT_ROUNDS))
   },
 
   async matchPassword(password, checkedPassword) {

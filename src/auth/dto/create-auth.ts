@@ -15,14 +15,8 @@ export class UserDto {
     @IsEmail({}, { message: 'Email must be a valid email address.' })
     password: string;
 
-    @IsOptional()
-    @IsString({ message: 'Address must be a string.' })
-    @Length(0, 100, { message: 'Address must be at most 100 characters.' })
-    address?: string;
-
-    @IsOptional()
     @IsString({ message: 'Phone number must be a string.' })
     @Length(10, 15, { message: 'Phone number must be between 10 and 15 characters.' })
-    phoneNumber?: string;
+    phoneNumber: string;
 }
 
