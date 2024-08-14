@@ -14,10 +14,96 @@ datasource db {
 }
 
 model User {
-  id            String      @id @default(uuid()) @db.Uuid
-  email         String      @unique
-  name          String
-  password      String
-  phoneNumber   String
+  id                        String                    @id @default(uuid()) @db.Uuid
+  email                     String                    @unique
+  name                      String                    @unique
+  password                  String
+  phoneNumber               String
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  sendMessages              Message[]                 @relation("SentMessages")
+  receivedMessages          Message[]                 @relation("ReceivedMessages")
+  conversationAsUser1       Conversation[]            @relation("User1")
+  conveersationAsUser2      Conversation[]            @relation("User2")
+  participatedConversations ConversationParticipant[]
+  messageReactions          MessageReaction[]
+  lastSeen                  DateTime?
+  isOnline                  Boolean                   @default(false)
+
+  @@index([email])
+  @@index([name])
 }
 
+model Message {
+  id             String            @id @default(uuid())
+  senderId       String
+  receiverId     String
+  content        String
+  timestamp      DateTime          @default(now())
+  isRead         Boolean           @default(false)
+  sender         User              @relation("SentMessages", fields: [senderId], references: [id])
+  receiver       User              @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  coversation Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  status         MessageStatus     @default(SENT)
+  reactions      MessageReaction[]
+  attachements   FileAttachment[]
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([timestamp])
+  @@index([isRead])
+}
+
+model Conversation {
+  id String @id @default(uuid())
+  user1Id String
+  user2Id String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user1 User @relation("User1", fields: [user1Id], references: [id])
+  user2 User @relation("User2", fields: [user2Id], references: [id])
+  messages Message[]
+  participants ConversationParticipant[]
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+}
+
+model ConversationParticipant {
+  conversationId String
+  userId String
+  jointAt DateTime @default(now())
+  leftAt DateTime?
+  user User @relation(fields: [userId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  @@id([conversationId, userId])
+}
+
+model MessageReaction {
+  id String
+  messageId String
+  userId String
+  reaction String
+  createdAt DateTime @default(now())
+  message Message @relation(fields: [messageId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  @@unique([messageId , userId])
+}
+
+model FileAttachment {
+  id String @id @default(uuid())
+  messageId String
+  fileName String
+  fileUrl String
+  fileSize Int
+  mimeType String
+  createdAt DateTime @default(now())
+  message Message @relation(fields: [messageId], references: [id])
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
