@@ -35,16 +35,16 @@ model User {
 }
 
 model Message {
-  id             String            @id @default(uuid())
-  senderId       String
-  receiverId     String
+  id             String            @id @default(uuid()) @db.Uuid
+  senderId       String            @db.Uuid
+  receiverId     String            @db.Uuid
   content        String
   timestamp      DateTime          @default(now())
   isRead         Boolean           @default(false)
   sender         User              @relation("SentMessages", fields: [senderId], references: [id])
   receiver       User              @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  coversation Conversation @relation(fields: [conversationId], references: [id])
-  conversationId String
+  coversation    Conversation      @relation(fields: [conversationId], references: [id])
+  conversationId String            @db.Uuid
   status         MessageStatus     @default(SENT)
   reactions      MessageReaction[]
   attachements   FileAttachment[]
@@ -56,50 +56,53 @@ model Message {
 }
 
 model Conversation {
-  id String @id @default(uuid())
-  user1Id String
-  user2Id String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user1 User @relation("User1", fields: [user1Id], references: [id])
-  user2 User @relation("User2", fields: [user2Id], references: [id])
-  messages Message[]
+  id           String                    @id @default(uuid()) @db.Uuid
+  user1Id      String                    @db.Uuid
+  user2Id      String                    @db.Uuid
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  user1        User                      @relation("User1", fields: [user1Id], references: [id])
+  user2        User                      @relation("User2", fields: [user2Id], references: [id])
+  messages     Message[]
   participants ConversationParticipant[]
+
   @@unique([user1Id, user2Id])
   @@index([user1Id])
   @@index([user2Id])
 }
 
 model ConversationParticipant {
-  conversationId String
-  userId String
-  jointAt DateTime @default(now())
-  leftAt DateTime?
-  user User @relation(fields: [userId], references: [id])
-  conversation Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String       @db.Uuid
+  userId         String       @db.Uuid
+  jointAt        DateTime     @default(now())
+  leftAt         DateTime?
+  user           User         @relation(fields: [userId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
   @@id([conversationId, userId])
 }
 
 model MessageReaction {
-  id String
-  messageId String
-  userId String
-  reaction String
+  id        String   @id @default(uuid()) @db.Uuid
+  messageId String   @db.Uuid
+  userId    String   @db.Uuid
+  reaction  String
   createdAt DateTime @default(now())
-  message Message @relation(fields: [messageId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-  @@unique([messageId , userId])
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
 }
 
 model FileAttachment {
-  id String @id @default(uuid())
-  messageId String
-  fileName String
-  fileUrl String
-  fileSize Int
-  mimeType String
+  id        String   @id @default(uuid())
+  messageId String   @db.Uuid
+  fileName  String
+  fileUrl   String
+  fileSize  Int
+  mimeType  String
   createdAt DateTime @default(now())
-  message Message @relation(fields: [messageId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
 }
 
 enum MessageStatus {

@@ -18,5 +18,6 @@ export class UserDto {
     @IsString({ message: 'Phone number must be a string.' })
     @Length(10, 15, { message: 'Phone number must be between 10 and 15 characters.' })
     phoneNumber: string;
+    
 }
 
