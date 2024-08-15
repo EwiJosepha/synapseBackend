@@ -25,3 +25,20 @@ export class ConversationParticipantDto {
   @IsOptional()
   conversation?: ConversationDto;
 }
+
+export class CreateConversationParticipant {
+  userId: string;
+  @IsOptional()
+  @IsUUID()
+  conversationId: string;
+
+  @IsDate()
+  @Type(() => Date)
+  joinedAt: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  leftAt?: Date;
+
+}
