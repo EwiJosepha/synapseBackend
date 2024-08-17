@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ConversationService } from "./conversation.service";
 import { CreateConversationDto } from "./dto-conversation/conversation-dto";
 
@@ -9,6 +9,16 @@ export class ConversationController {
 @Post()
   async conversationController(@Body() createConversationDto: CreateConversationDto) {
     return this.conversationService.createConversation(createConversationDto)
+  }
+
+  @Get()
+  async handleRetrieveConversations () {
+    return this.conversationService.getConversations()
+  }
+
+  @Get(":id")
+  async handleRetrieveAConversation (@Param("id") id: string) {
+    return this.conversationService.getAConversation(id)
   }
 
 }

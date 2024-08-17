@@ -101,6 +101,20 @@ export class AuthService {
     }
   }
 
+  async getUsers () {
+    const users = this.prisma.user.findMany()
+    console.log({users});
+    
+    return users
+  }
+
+  async getAUser (id: string) {
+    const user =this.prisma.user.findUnique({where:{id:id}})
+    console.log({user});
+    
+    return user
+  }
+
 }
 
 

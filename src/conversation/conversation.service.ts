@@ -46,4 +46,18 @@ export class ConversationService {
 
     return newConversation;
   }
+
+  async getConversations () {
+    const users = this.prisma.conversation.findMany()
+    console.log({users});
+    
+    return users
+  }
+
+  async getAConversation (id: string) {
+    const user =this.prisma.conversation.findUnique({where:{id:id}})
+    console.log({user});
+    
+    return user
+  }
 }

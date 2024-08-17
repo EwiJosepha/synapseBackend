@@ -4,6 +4,7 @@ import { JWT_SECRET } from "../utils/constant";
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { MessageController } from './messages.controller';
 import { MessageService } from './messages.service';
+import { ChatModule } from 'src/web-socket/chat.module';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { MessageService } from './messages.service';
       signOptions: {
         expiresIn: '10 days',
       }
-    }), PrismaModule
+    }), PrismaModule, ChatModule
   ],
   controllers: [MessageController],
   providers: [MessageService],

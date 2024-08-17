@@ -7,7 +7,7 @@ export class ConversationParticipantService {
   constructor(private prisma: PrismaService) { }
   async createConversationParticipant(createConversationDto: CreateConversationParticipant) {
     const { userId, conversationId, joinedAt } = createConversationDto;
-  
+
     const existingParticipant = await this.prisma.conversationParticipant.findUnique({
       where: {
         conversationId_userId: {
@@ -16,11 +16,11 @@ export class ConversationParticipantService {
         },
       },
     });
-  
+
     if (existingParticipant) {
       throw new Error('Participant already exists in this conversation.');
     }
-  
+
     const newParticipant = await this.prisma.conversationParticipant.create({
       data: {
         userId: userId,
@@ -28,7 +28,21 @@ export class ConversationParticipantService {
         jointAt: joinedAt || new Date(),
       },
     });
-  
+
     return newParticipant;
   }
+
+  async getConversationParticipant(userId: string, conversationId: string) {
+    return this.prisma.conversationParticipant.findUnique({
+      where:
+      {
+        conversationId_userId:
+        {
+          userId,
+          conversationId
+        }
+      }
+    })
+  }
+
 }

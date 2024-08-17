@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { MessageDto } from "./dto-messages/create-message";
+import { ChatGateWay } from "src/web-socket/gateway";
 
 @Injectable()
 
 export class MessageService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService,private  chatGateWay: ChatGateWay) {}
+
 
   async createMessage(messageDto: MessageDto) {
     const { content, senderId, receiverId, conversationId, reactions, attachments } = messageDto
@@ -59,7 +61,7 @@ export class MessageService {
       })
     }
 
-    return this.prisma.message.findUnique({
+    const messageSent = this.prisma.message.findUnique({
       where: {id: message.id},
       include: {
         reactions: true,
@@ -67,6 +69,9 @@ export class MessageService {
       }
     })
 
+  this.chatGateWay.server.emit('sendMessage', messageSent)
+
+  return messageSent
 
   }
 }
