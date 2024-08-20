@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { MessageService } from "./messages.service";
 import { MessageDto } from "./dto-messages/create-message";
 
@@ -6,11 +6,16 @@ import { MessageDto } from "./dto-messages/create-message";
 export class MessageController {
   constructor(private messagesServices: MessageService) {}
 
-  @Post("cur")
+  @Post()
   createMessage(@Body() messageDto: MessageDto) {
 
     return this.messagesServices.createMessage(messageDto)
 
+  }
+
+  @Get()
+  async handleGetMsges () {
+    return this.messagesServices.getSenderAndReceiver()
   }
 }
 

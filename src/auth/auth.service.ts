@@ -33,10 +33,14 @@ export class AuthService {
     console.log(userData);
     
     const token = AuthServices.jwtSignUser(userData)
-    res.status(200).json({
+    res.status(200).json({ 
       message: "SignUp successful",
       data: token
-    })    
+    }) 
+    
+    if(!token) {
+      res.status(401).json("wrong sign up headers already exist")
+    }
   }
 
   async signIn(dto: UserDto, req: Request, res: Response,) {

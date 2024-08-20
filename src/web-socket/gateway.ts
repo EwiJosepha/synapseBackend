@@ -3,7 +3,10 @@ import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
   cors: {
-    origin: "*"
+    origin: "http://localhost:3001", // Change to your client URL
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
   }
 })
 
