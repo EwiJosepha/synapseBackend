@@ -44,7 +44,7 @@ export class ConversationService {
       }
     });
 
-    return newConversation;
+    return{ newConversation: newConversation.id }
   }
 
   async getConversations () {
