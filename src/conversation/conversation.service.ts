@@ -4,11 +4,11 @@ import { CreateConversationDto } from './dto-conversation/conversation-dto';
 
 @Injectable()
 export class ConversationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createConversation(createConversationDto: CreateConversationDto) {
     const { user1Id, user2Id } = createConversationDto;
-   
+
     if (!user1Id || !user2Id) {
       throw new Error('Both user1Id and user2Id are required');
     }
@@ -20,6 +20,8 @@ export class ConversationService {
           { user1Id: user1Id, user2Id: user2Id },
           { user1Id: user2Id, user2Id: user1Id }
         ]
+      }, include: {
+        messages: true,
       }
     });
 
@@ -40,24 +42,31 @@ export class ConversationService {
         }
       },
       include: {
-        participants: true
-      }
+        participants: true,
+        messages: true,
+
+      },
     });
 
-    return{ newConversation: newConversation.id }
+    console.log(newConversation, "newcon");
+    return { newConversation: newConversation.id }
   }
 
-  async getConversations () {
-    const users = this.prisma.conversation.findMany()
-    console.log({users});
+  async getConversations() {
+    const conversations = await this.prisma.conversation.findMany({
+      include:{
+      messages: true
+      }
+    })
     
-    return users
+    return conversations
+
   }
 
-  async getAConversation (id: string) {
-    const user =this.prisma.conversation.findUnique({where:{id:id}})
-    console.log({user});
-    
+  async getAConversation(id: string) {
+    const user = await this.prisma.conversation.findUnique({ where: { id: id } })
+    console.log({ user });
+
     return user
   }
 }

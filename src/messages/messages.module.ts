@@ -18,5 +18,6 @@ import { ChatModule } from 'src/web-socket/chat.module';
   ],
   controllers: [MessageController],
   providers: [MessageService],
+  exports: [MessageService]
 })
-export class MessageAuth {}
+export class MessageModule {}
