@@ -6,11 +6,11 @@ import { ChatGateWay } from "src/web-socket/gateway";
 @Injectable()
 
 export class MessageService {
-  constructor(private prisma: PrismaService, private chatGateWay: ChatGateWay) { }
+  constructor(private prisma: PrismaService) { }
 
 
   async createMessage(messageDto: MessageDto) {
-    const { content, senderId, receiverId, conversationId, reactions, attachments } = messageDto
+    const { content, senderId, receiverId, reactions, attachments } = messageDto
     const use1 = await this.prisma.user.findUnique({ where: { id: senderId } })
     const use2 = await this.prisma.user.findUnique({ where: { id: receiverId } })
 
@@ -19,12 +19,16 @@ export class MessageService {
     console.log({ bothIs: use2 });
 
 
-    const conversationIdd = await this.prisma.conversation.findFirst({
+    const conversation = await this.prisma.conversation.findFirst({
       where: {
         OR:
           [{ user1Id: senderId, user2Id: receiverId }, { user1Id: receiverId, user2Id: senderId }]
       }
     })
+
+    if (!conversation) {
+      throw new NotFoundException(`Conversation not found for users ${senderId} and ${receiverId}`);
+    }
 
     const sender = await this.prisma.user.findUnique({
       where: {
@@ -51,7 +55,7 @@ export class MessageService {
         content,
         senderId,
         receiverId,
-        conversationId
+        conversationId:conversation.id
       }
     })
 
@@ -86,9 +90,6 @@ export class MessageService {
         attachements: true
       }
     })
-
-    this.chatGateWay.server.emit('createdMessage', messageSent)
-
     return messageSent
 
   }
@@ -105,5 +106,12 @@ export class MessageService {
 
     return msges
   }
+
+  // async getMessages(conversationId: string) {
+  //   return this.prisma.message.findMany({
+  //     where: { conversationId },
+  //     orderBy: { createdAt: 'asc' },
+  //   });
+  // }
 }
 

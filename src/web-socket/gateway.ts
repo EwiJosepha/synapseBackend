@@ -1,5 +1,7 @@
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, WebSocketServerOptions, OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { MessageService } from "src/messages/messages.service";
+import { MessageDto } from "src/messages/dto-messages/create-message";
 
 @WebSocketGateway({
   cors: {
@@ -10,7 +12,9 @@ import { Server, Socket } from "socket.io";
   }
 })
 
+
 export class ChatGateWay implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly messageService: MessageService) { }
   @WebSocketServer() server: Server
 
   handleConnection(client: Socket) {
@@ -19,17 +23,20 @@ export class ChatGateWay implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
+
     console.log(`client disconnected: ${client.id}`);
+    console.log("hey");
+
   }
 
   @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, payload: {
-    userId: string; message: string
-  }) {
+  async handleMessage(client: Socket, payload: MessageDto) {
+    const message = await this.messageService.createMessage(payload)
 
     console.log("messaged received", payload);
-    this.server.emit("receivedMessage", payload)
+    this.server.to(payload.receiverId).emit('messageReceived', message)
+    this.server.to(payload.senderId).emit('messageSent', message)
   }
 
-
 }
+
