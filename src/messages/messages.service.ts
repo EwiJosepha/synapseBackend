@@ -107,11 +107,42 @@ export class MessageService {
     return msges
   }
 
-  // async getMessages(conversationId: string) {
-  //   return this.prisma.message.findMany({
-  //     where: { conversationId },
-  //     orderBy: { createdAt: 'asc' },
-  //   });
-  // }
+
+  async getMessagesByConversationId(conversationId: string) {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException(`Conversation with ID ${conversationId} not found`);
+    }
+
+    const messages = await this.prisma.message.findMany({
+      where: { conversationId },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            // Add other fields you want to include
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            // Add other fields you want to include
+          },
+        },
+        reactions: true,
+        attachements: true,
+      },
+      // orderBy: { createdAt: 'asc' },
+    });
+
+    return messages;
+  }
 }
 

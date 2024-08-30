@@ -9,7 +9,7 @@ import { ChatModule } from './web-socket/chat.module';
 
 
 @Module({
-  imports: [AuthModule, MessageModule, ConversationModule, ConversationParticipantModule, ReactionModule, FileAttachmentModule],
+  imports: [AuthModule, MessageModule, ConversationModule, ConversationParticipantModule, ReactionModule, FileAttachmentModule, ChatModule],
   controllers: [],
   providers: [],
 })
