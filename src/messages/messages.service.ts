@@ -37,10 +37,10 @@ export class MessageService {
     });
   
     if (!sender) {
-      throw new NotFoundException(`Sender with ID ${senderId} not found`);
+      return  `Sender with ID ${senderId} not found`
+      // throw new NotFoundException();
     }
   
-    // Check if the receiver exists
     const receiver = await this.prisma.user.findUnique({
       where: {
         id: receiverId,
@@ -78,7 +78,6 @@ export class MessageService {
           fileUrl: file.fileUrl,
           fileSize: file.fileSize,
           mimeType: file.mimeType,
-          // id: file.id,
         }))
       })
     }
@@ -125,7 +124,6 @@ export class MessageService {
             id: true,
             name: true,
             email: true,
-            // Add other fields you want to include
           },
         },
         receiver: {
@@ -133,13 +131,11 @@ export class MessageService {
             id: true,
             name: true,
             email: true,
-            // Add other fields you want to include
           },
         },
         reactions: true,
         attachements: true,
       },
-      // orderBy: { createdAt: 'asc' },
     });
 
     return messages;

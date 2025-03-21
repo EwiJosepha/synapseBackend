@@ -69,4 +69,21 @@ export class ConversationService {
 
     return user
   }
+
+  async getConversationByUsers(user1Id: string, user2Id: string) {
+    const conversation = await this.prisma.conversation.findFirst({
+      where: {
+        OR: [
+          { user1Id: user1Id, user2Id: user2Id },
+          { user1Id: user2Id, user2Id: user1Id }
+        ]
+      },
+      include: {
+        messages: true,
+        participants: true
+      }
+    });
+  
+    return conversation;
+  }
 }
